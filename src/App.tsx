@@ -1,4 +1,4 @@
-import React, { FC, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { Container, Row, Col } from 'react-bootstrap';
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
@@ -9,7 +9,7 @@ import {
     SolflareWalletAdapter,
     SolletExtensionWalletAdapter,
     SolletWalletAdapter,
-    TorusWalletAdapter,
+    TorusWalletAdapter
 } from '@solana/wallet-adapter-wallets';
 import {
     WalletModalProvider,
@@ -61,6 +61,6 @@ const App = () => {
             </WalletProvider>
         </ConnectionProvider>
     );
-}
+};
 
 export default App;
