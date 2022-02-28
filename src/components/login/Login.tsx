@@ -2,14 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
 import { useWalletModal } from '@solana/wallet-adapter-react-ui';
 import { Spinner, Button } from 'react-bootstrap';
-import fetch from 'node-fetch';
 import { PublicKey } from '@solana/web3.js';
+import bs58 from 'bs58';
 import getAccessToken from '../../util/api/getAccessToken';
+import { useAuthentication } from '../providers/Authentication';
+
+const encoder = new TextEncoder();
 
 const Login = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [isSelecting, setIsSelecting] = useState(false);
 
+    const authentication = useAuthentication();
     const wallet = useWallet();
     const walletModel = useWalletModal();
 
@@ -30,15 +34,22 @@ const Login = () => {
             console.log('Wallet connection failed: ', err);
             setIsLoading(false);
         }
-
-        // next the user needs to get a token
     };
 
     const getAndSignToken = async () => {
         const publicKey = wallet.publicKey as PublicKey;
         const tokenResponse: TokenResponse = await getAccessToken(publicKey);
 
-        console.log(tokenResponse);
+        const accessToken = tokenResponse.access_token;
+        const accessTokenAsUint8Array: Uint8Array = encoder.encode(accessToken);
+
+        const signedMessage: Uint8Array = await (wallet as any).signMessage(accessTokenAsUint8Array);
+        const signedToken = bs58.encode(signedMessage);
+
+        authentication.setLogin({
+            accessToken,
+            signedToken
+        });
     };
 
     useEffect(() => {
@@ -68,21 +79,11 @@ const Login = () => {
         }
     }, [isSelecting, walletModel.visible]);
 
-    // we need to do checks
-    // does user have token?
-    // is token expired?
-    // if token is expired -- let the user login
-    // if token not expired -- Logout
-    // this type of work should be managed in the authentication provider that we create
-
     return (
-        // eslint-disable-next-line react/jsx-no-useless-fragment
-        <>
-            <Button onClick={connectWallet} disabled={isLoading}>
-                Login
-                {isLoading ? <Spinner style={{ marginLeft: '5px' }} animation="border" size="sm" /> : undefined}
-            </Button>
-        </>
+        <Button onClick={connectWallet} disabled={isLoading}>
+            Login
+            {isLoading ? <Spinner style={{ marginLeft: '5px' }} animation="border" size="sm" /> : undefined}
+        </Button>
     );
 };
 

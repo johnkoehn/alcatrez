@@ -1,12 +1,12 @@
-import React, { useState, FunctionComponent } from 'react';
+import React, { useState, FunctionComponent, CSSProperties } from 'react';
 import { Spinner, Button } from 'react-bootstrap';
 
 interface LoadingProps {
     onClick: any;
     className?: string;
-    style?: string;
+    style?: CSSProperties;
     children?: | React.ReactChild | React.ReactChild[];
-    disabled?: Boolean;
+    disabled?: boolean;
 }
 
 const LoadingButton: FunctionComponent<LoadingProps> = ({ onClick, className, style, children, disabled }) => {
