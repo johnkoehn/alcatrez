@@ -28,7 +28,7 @@ module.exports = {
         'react/jsx-indent': [2, 4],
         'react/jsx-indent-props': [2, 4],
         'react-hooks/exhaustive-deps': 0,
-        'indent': [2, 4],
+        'indent': [2, 4, { SwitchCase: 1 }],
         '@typescript-eslint/indent': [2, 4],
         radix: 0,
         'react/prop-types': 0,

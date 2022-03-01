@@ -46,7 +46,7 @@ const Login = () => {
         const signedMessage: Uint8Array = await (wallet as any).signMessage(accessTokenAsUint8Array);
         const signedToken = bs58.encode(signedMessage);
 
-        authentication.setLogin({
+        authentication.login({
             accessToken,
             signedToken
         });

@@ -1,19 +1,33 @@
-import React, { createContext, FunctionComponent, useContext, useState, useMemo } from 'react';
+import React, { createContext, FunctionComponent, useContext, useReducer, useMemo } from 'react';
 import jwtDecode from 'jwt-decode';
 import { DateTime } from 'luxon';
 
 interface AuthenticationProviderValues {
-    accessToken?: string,
-    signedToken?: string,
-    decodedToken?: DecodedToken,
-    setLogin: Function,
+    authInformation: AuthInformation,
+    login: Function,
     isAuthenticated: Function,
-    isLoggedIn: boolean
+    logout: Function
 }
 
 interface LoginTokens {
     accessToken: string,
     signedToken: string
+}
+
+interface AuthInformation {
+    accessToken?: string,
+    signedToken?: string,
+    decodedToken?: DecodedToken
+}
+
+enum AuthAction {
+    LOGIN,
+    LOGOUT
+}
+
+interface Actions {
+    type: AuthAction,
+    value?: AuthInformation
 }
 
 const AuthenticationContext = createContext<AuthenticationProviderValues | undefined>(undefined);
@@ -22,49 +36,98 @@ interface AuthenticationProviderProps {
     children: React.ReactChild | React.ReactChild[]
 }
 
+const isTokenExpired = (decodedToken: DecodedToken): boolean => {
+    // is decoded token expired?
+    const now = DateTime.now();
+
+    // give ourselves a minute leeway
+    return decodedToken.exp - now.toSeconds() <= 60;
+};
+
+const authReducer = (_state: AuthInformation, action: Actions): AuthInformation => {
+    switch (action.type) {
+        case (AuthAction.LOGIN): {
+            return {
+                ...action.value
+            };
+        }
+        case (AuthAction.LOGOUT): {
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('signedToken');
+            return {};
+        }
+        default: {
+            throw new Error('Unknown auth action type');
+        }
+    }
+};
+
 // TODO: Change this to having a call getTokens
 // calls checks for being authed if tokens exist
 // if token expired, force login
 // if login fails, delete tokens, creating a logout
 
+const authInitialState = (): AuthInformation => {
+    const localAccessToken = localStorage.getItem('accessToken');
+    const localSignedToken = localStorage.getItem('signedToken');
+
+    console.log('Initializer');
+
+    if (localAccessToken && localSignedToken) {
+        const localDecodedToken: DecodedToken = jwtDecode(localAccessToken);
+
+        if (!isTokenExpired(localDecodedToken)) {
+            return {
+                accessToken: localAccessToken,
+                signedToken: localSignedToken,
+                decodedToken: localDecodedToken
+            };
+        }
+    }
+    return {};
+};
+
 const AuthenticationProvider: FunctionComponent<AuthenticationProviderProps> = ({ children }) => {
-    const [accessToken, setAccessToken] = useState<undefined | string>(undefined);
-    const [signedToken, setSignedToken] = useState<undefined | string>(undefined);
-    const [decodedToken, setDecodedToken] = useState<undefined | DecodedToken>(undefined);
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [authInformation, dispatch] = useReducer(authReducer, {}, authInitialState);
 
-    const setLogin = (loginTokens: LoginTokens) => {
-        setAccessToken(loginTokens.accessToken);
-        setSignedToken(loginTokens.signedToken);
-
-        const decodeResult: DecodedToken = jwtDecode(loginTokens.accessToken);
-        setDecodedToken(decodeResult);
-
-        setIsLoggedIn(true);
+    const login = (loginTokens: LoginTokens) => {
+        // add the access token and signed token to local storage
+        dispatch({
+            type: AuthAction.LOGIN,
+            value: {
+                ...loginTokens,
+                decodedToken: jwtDecode(loginTokens.accessToken)
+            }
+        });
     };
 
-    const isAuthenticated = () => {
+    const isAuthenticated = (): boolean => {
+        const { signedToken, accessToken, decodedToken } = authInformation;
+
         if (!signedToken || !accessToken || !decodedToken) {
             return false;
         }
 
-        // is decoded token expired?
-        const now = DateTime.now();
+        return !isTokenExpired(decodedToken);
+    };
 
-        // give ourselves a minute leeway
-        return decodedToken.exp - now.toSeconds() <= 60;
+    const logout = () => {
+        dispatch({
+            type: AuthAction.LOGOUT
+        });
+
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('signedToken');
     };
 
     const value: AuthenticationProviderValues = useMemo(() => {
         return {
-            signedToken,
-            accessToken,
-            decodedToken,
-            setLogin,
+            authInformation,
+            login,
             isAuthenticated,
-            isLoggedIn
+            logout
         };
-    }, [accessToken, signedToken, decodedToken, isLoggedIn]);
+    }, [authInformation, authInformation.accessToken]);
 
     return (
         <AuthenticationContext.Provider value={value}>

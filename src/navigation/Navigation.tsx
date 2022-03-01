@@ -25,11 +25,11 @@ const Navigation = () => {
     };
 
     const buildRightNav = () => {
-        if (authentication.isLoggedIn) {
+        if (authentication.isAuthenticated()) {
             return (
                 <Nav>
                     <NavDropdown title="profile">
-                        <NavDropdown.Item>Temp</NavDropdown.Item>
+                        <NavDropdown.Item onClick={() => authentication.logout()}>Logout</NavDropdown.Item>
                     </NavDropdown>
                 </Nav>
             );
