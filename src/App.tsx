@@ -12,12 +12,12 @@ import {
     TorusWalletAdapter
 } from '@solana/wallet-adapter-wallets';
 import {
-    WalletModalProvider,
-    WalletDisconnectButton,
-    WalletMultiButton
+    WalletModalProvider
 } from '@solana/wallet-adapter-react-ui';
 import { clusterApiUrl } from '@solana/web3.js';
 import './App.css';
+import Naviagation from './navigation/Navigation';
+import { AuthenticationProvider } from './components/providers/Authentication';
 
 require('@solana/wallet-adapter-react-ui/styles.css');
 
@@ -46,17 +46,18 @@ const App = () => {
 
     return (
         <ConnectionProvider endpoint={endpoint}>
-            <WalletProvider wallets={wallets} autoConnect>
+            <WalletProvider wallets={wallets} autoConnect={false}>
                 <WalletModalProvider>
-                    <WalletMultiButton />
-                    <WalletDisconnectButton />
-                    <Container>
-                        <Row>
-                            <Col>
-                                <p>Hello world</p>
-                            </Col>
-                        </Row>
-                    </Container>
+                    <AuthenticationProvider>
+                        <Naviagation />
+                        <Container>
+                            <Row>
+                                <Col>
+                                    <p>Hello world</p>
+                                </Col>
+                            </Row>
+                        </Container>
+                    </AuthenticationProvider>
                 </WalletModalProvider>
             </WalletProvider>
         </ConnectionProvider>
