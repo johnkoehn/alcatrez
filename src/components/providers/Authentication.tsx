@@ -1,9 +1,10 @@
 import React, { createContext, FunctionComponent, useContext, useReducer, useMemo } from 'react';
 import jwtDecode from 'jwt-decode';
 import { DateTime } from 'luxon';
+import { useWallet } from '@solana/wallet-adapter-react';
 
 interface AuthenticationProviderValues {
-    authInformation: AuthInformation,
+    getTokens: Function,
     login: Function,
     isAuthenticated: Function,
     logout: Function
@@ -47,6 +48,8 @@ const isTokenExpired = (decodedToken: DecodedToken): boolean => {
 const authReducer = (_state: AuthInformation, action: Actions): AuthInformation => {
     switch (action.type) {
         case (AuthAction.LOGIN): {
+            localStorage.setItem('accessToken', (action.value?.accessToken as string));
+            localStorage.setItem('signedToken', (action.value?.signedToken as string));
             return {
                 ...action.value
             };
@@ -62,16 +65,9 @@ const authReducer = (_state: AuthInformation, action: Actions): AuthInformation 
     }
 };
 
-// TODO: Change this to having a call getTokens
-// calls checks for being authed if tokens exist
-// if token expired, force login
-// if login fails, delete tokens, creating a logout
-
 const authInitialState = (): AuthInformation => {
     const localAccessToken = localStorage.getItem('accessToken');
     const localSignedToken = localStorage.getItem('signedToken');
-
-    console.log('Initializer');
 
     if (localAccessToken && localSignedToken) {
         const localDecodedToken: DecodedToken = jwtDecode(localAccessToken);
@@ -89,9 +85,17 @@ const authInitialState = (): AuthInformation => {
 
 const AuthenticationProvider: FunctionComponent<AuthenticationProviderProps> = ({ children }) => {
     const [authInformation, dispatch] = useReducer(authReducer, {}, authInitialState);
+    const wallet = useWallet();
+
+    const getTokens = (): AuthInformation => {
+        // TODO: Change this to having a call getTokens
+        // calls checks for being authed if tokens exist
+        // if token expired, force login
+        // if login fails, delete tokens, creating a logout
+        return authInformation;
+    };
 
     const login = (loginTokens: LoginTokens) => {
-        // add the access token and signed token to local storage
         dispatch({
             type: AuthAction.LOGIN,
             value: {
@@ -112,6 +116,11 @@ const AuthenticationProvider: FunctionComponent<AuthenticationProviderProps> = (
     };
 
     const logout = () => {
+        if (wallet.connected) {
+            // don't await this for now, let it run in the background
+            wallet.disconnect();
+        }
+
         dispatch({
             type: AuthAction.LOGOUT
         });
@@ -122,7 +131,7 @@ const AuthenticationProvider: FunctionComponent<AuthenticationProviderProps> = (
 
     const value: AuthenticationProviderValues = useMemo(() => {
         return {
-            authInformation,
+            getTokens,
             login,
             isAuthenticated,
             logout

@@ -1,36 +1,17 @@
 import React from 'react';
-import { Navbar, Container, Nav, NavDropdown } from 'react-bootstrap';
-import {
-    WalletDisconnectButton,
-    WalletMultiButton
-} from '@solana/wallet-adapter-react-ui';
-import { useWallet } from '@solana/wallet-adapter-react';
+import { Navbar, Container, Nav } from 'react-bootstrap';
+import Profile from './Profile';
 import Login from '../components/login/Login';
 import { useAuthentication } from '../components/providers/Authentication';
 
 const Navigation = () => {
-    const wallet = useWallet();
     const authentication = useAuthentication();
-
-    const buildWalletButton = () => {
-        if (!wallet.disconnecting && (wallet.connected || wallet.connecting)) {
-            return (
-                <WalletDisconnectButton key="wallet-disconnect" />
-            );
-        }
-
-        return (
-            <WalletMultiButton key="wallet-connect" />
-        );
-    };
 
     const buildRightNav = () => {
         if (authentication.isAuthenticated()) {
             return (
                 <Nav>
-                    <NavDropdown title="profile">
-                        <NavDropdown.Item onClick={() => authentication.logout()}>Logout</NavDropdown.Item>
-                    </NavDropdown>
+                    <Profile />
                 </Nav>
             );
         }
@@ -46,9 +27,6 @@ const Navigation = () => {
         <Navbar bg="dark" variant="dark">
             <Container fluid>
                 <Navbar.Brand>Alcatrez</Navbar.Brand>
-                <Nav>
-                    {buildWalletButton()}
-                </Nav>
                 {buildRightNav()}
             </Container>
         </Navbar>
