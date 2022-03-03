@@ -1,8 +1,8 @@
+/* eslint-disable no-param-reassign */
 // eslint-disable-next-line import/no-extraneous-dependencies
 const webpack = require('webpack');
 
 module.exports = function override(config) {
-    // eslint-disable-next-line no-param-reassign
     config.resolve.fallback = {
         url: require.resolve('url'),
         fs: require.resolve('fs'),
@@ -13,6 +13,9 @@ module.exports = function override(config) {
         os: require.resolve('os-browserify/browser'),
         buffer: require.resolve('buffer'),
         stream: require.resolve('stream-browserify')
+    };
+    config.resolve.fallback = {
+        process: false
     };
     config.plugins.push(
         new webpack.ProvidePlugin({

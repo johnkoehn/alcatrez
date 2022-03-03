@@ -18,6 +18,7 @@ import { clusterApiUrl } from '@solana/web3.js';
 import './App.css';
 import Naviagation from './navigation/Navigation';
 import { AuthenticationProvider } from './components/providers/Authentication';
+import Editor from './components/editor/Editor';
 
 require('@solana/wallet-adapter-react-ui/styles.css');
 
@@ -53,7 +54,7 @@ const App = () => {
                         <Container>
                             <Row>
                                 <Col>
-                                    <p>Hello world</p>
+                                    <Editor />
                                 </Col>
                             </Row>
                         </Container>
