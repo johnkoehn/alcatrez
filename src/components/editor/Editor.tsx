@@ -1,37 +1,24 @@
 import React, { useState } from 'react';
-import MarkdownEditor from '@uiw/react-md-editor';
-import rehypeSanitize from 'rehype-sanitize';
+import { EditorState } from 'draft-js';
+import { Editor as WEditor } from 'react-draft-wysiwyg';
+import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css';
+import styles from './Editor.module.css';
 
 const Editor = () => {
-    const [markdown, setMarkdown] = useState<string | undefined>('Content Here');
+    const [editorState, setEditorState] = useState(EditorState.createEmpty());
 
-    const handleOnChange = (value: string | undefined) => {
-        if (value?.length && value.length >= 1) {
-            const character = value.charCodeAt(value.length - 1);
-            if (character === 10) {
-                setMarkdown(`${value}\n`);
-            } else {
-                setMarkdown(value);
-            }
-        } else {
-            setMarkdown(value);
-        }
+    const onEditorStateChange = (newEditorState: EditorState) => {
+        setEditorState(newEditorState);
     };
 
     return (
-        <>
-            <MarkdownEditor
-                value={markdown}
-                onChange={handleOnChange}
-                previewOptions={{
-                    rehypePlugins: [[rehypeSanitize]]
-                }}
-            />
-            <MarkdownEditor.Markdown
-                source={markdown}
-                rehypePlugins={[[rehypeSanitize]]}
-            />
-        </>
+        <WEditor
+            editorState={editorState}
+            toolbarClassName="toolbarClassName"
+            wrapperClassName="wrapperClassName"
+            editorClassName={styles.editorBorder}
+            onEditorStateChange={onEditorStateChange}
+        />
     );
 };
 

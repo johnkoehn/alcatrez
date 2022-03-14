@@ -1,0 +1,5 @@
+.editorBorder {
+    border: 1px solid;
+    border-color: black;
+    min-height: 500px;
+}
