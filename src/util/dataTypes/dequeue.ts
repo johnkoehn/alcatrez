@@ -1,17 +1,35 @@
-const createQueue = () => {
-    const head = {
+interface QNode {
+    previous: QNode | null
+    next: QNode | null
+    value: any
+}
+
+interface Ends {
+    node: QNode | null
+}
+
+interface Dequeue {
+    length: Function,
+    popLeft: Function,
+    popRight: Function,
+    push: Function,
+    head: Function
+}
+
+const createDequeue = (): Dequeue => {
+    const head: Ends = {
         node: null
     };
 
-    const tail = {
+    const tail: Ends = {
         node: null
     };
 
     let length = 0;
 
     return {
-        length: () => length,
-        pop: () => {
+        length: (): Number => length,
+        popLeft: (): any => {
             // front
             if (head.node === null) {
                 throw Error('Queue is empty');
@@ -27,7 +45,7 @@ const createQueue = () => {
             length -= 1;
             return node.value;
         },
-        popLast: () => {
+        popRight: (): any => {
             // end of the queue
             if (tail.node === null) {
                 throw Error('Queue is empty');
@@ -43,9 +61,9 @@ const createQueue = () => {
             length -= 1;
             return node.value;
         },
-        push: (value) => {
+        push: (value: any) => {
             const previous = tail.node;
-            const node = {
+            const node: QNode = {
                 value,
                 next: null,
                 previous
@@ -55,11 +73,21 @@ const createQueue = () => {
             if (length === 0) {
                 head.node = node;
             } else {
+                if (!previous) {
+                    throw Error('previous node not defined when it should be');
+                }
                 previous.next = node;
             }
 
             tail.node = node;
             length += 1;
-        }
+        },
+        head: (): Ends => head
     };
+};
+
+export type { Ends, QNode };
+export {
+    // eslint-disable-next-line import/prefer-default-export
+    createDequeue
 };
