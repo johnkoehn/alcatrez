@@ -86,7 +86,7 @@ const createDequeue = (): Dequeue => {
     };
 };
 
-export type { Ends, QNode };
+export type { Ends, QNode, Dequeue };
 export {
     // eslint-disable-next-line import/prefer-default-export
     createDequeue

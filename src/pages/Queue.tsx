@@ -1,9 +1,9 @@
 import React, { useState, useRef } from 'react';
 import { Container, Row, Col, Button, InputGroup, FormControl } from 'react-bootstrap';
-import { Stage, Layer, Line } from 'react-konva';
-import ListNode from '../components/list/ListNode';
-import { createDequeue, QNode } from '../util/dataTypes/dequeue';
+import { Stage, Layer } from 'react-konva';
+import { createDequeue, Dequeue } from '../util/dataTypes/dequeue';
 import Error from '../components/util/Error';
+import LinkedList from '../components/list/LinkedList';
 
 const RADIUS = 30;
 const NODE_SPACING = 100;
@@ -11,7 +11,7 @@ const START_X = 34;
 const START_Y = 50;
 
 const Queue = () => {
-    const [queue] = useState(createDequeue());
+    const [queue] = useState<Dequeue>(createDequeue());
     const [size] = useState({
         width: 1000,
         height: 1000
@@ -22,8 +22,6 @@ const Queue = () => {
     const [lastAddedValue, setLastAddedValue] = useState<string | null>(null);
     const stageRef = useRef(null);
 
-    // add to the queue
-    // pop from the queue
     const addToQueue = () => {
         if (value === '') {
             setErrorMessage('Must add a value');
@@ -42,48 +40,6 @@ const Queue = () => {
         // }
 
         setValue(event.target.value);
-    };
-
-    const buildNodes = () => {
-        let node: QNode | null = queue.head().node;
-        console.log(node);
-        const elements = [];
-
-        let i = 0;
-        while (node) {
-            const x = START_X + (NODE_SPACING * i);
-            const y = START_Y;
-            elements.push(
-                <ListNode
-                    x={x}
-                    y={y}
-                    radius={RADIUS}
-                    value={node.value}
-                    key={`${x}${y}`}
-                />
-            );
-
-            node = node.next;
-
-            // add a line to the next node
-            if (node) {
-                // create a line from one end to the next
-                const endOfPreviousCircle = x + RADIUS;
-                const startOfNextCircle = x + NODE_SPACING - RADIUS;
-                elements.push(
-                    <Line
-                        points={[endOfPreviousCircle, START_Y, startOfNextCircle, START_Y]}
-                        strokeWidth={3}
-                        stroke="black"
-                        key={`${x}${y}-line`}
-                    />
-                );
-            }
-
-            i += 1;
-        }
-
-        return elements;
     };
 
     const onAddToQueueKeyPress = (event: React.KeyboardEvent) => {
@@ -132,7 +88,13 @@ const Queue = () => {
                     draggable
                 >
                     <Layer>
-                        {buildNodes()}
+                        <LinkedList
+                            startX={START_X}
+                            startY={START_Y}
+                            radius={RADIUS}
+                            linkedList={queue}
+                            nodeSpacing={NODE_SPACING}
+                        />
                     </Layer>
                 </Stage>
             </Row>
