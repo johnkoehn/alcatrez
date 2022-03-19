@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react';
-import { Container, Row, Col } from 'react-bootstrap';
 import { ConnectionProvider, WalletProvider } from '@solana/wallet-adapter-react';
 import { WalletAdapterNetwork } from '@solana/wallet-adapter-base';
 import {
@@ -15,10 +14,11 @@ import {
     WalletModalProvider
 } from '@solana/wallet-adapter-react-ui';
 import { clusterApiUrl } from '@solana/web3.js';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
-import Naviagation from './navigation/Navigation';
+import Naviagation from './components/navigation/Navigation';
 import { AuthenticationProvider } from './components/providers/Authentication';
-import Editor from './components/editor/Editor';
+import CreatePost from './pages/CreatePost';
 
 require('@solana/wallet-adapter-react-ui/styles.css');
 
@@ -46,22 +46,20 @@ const App = () => {
     );
 
     return (
-        <ConnectionProvider endpoint={endpoint}>
-            <WalletProvider wallets={wallets} autoConnect={false}>
-                <WalletModalProvider>
-                    <AuthenticationProvider>
-                        <Naviagation />
-                        <Container>
-                            <Row>
-                                <Col>
-                                    <Editor />
-                                </Col>
-                            </Row>
-                        </Container>
-                    </AuthenticationProvider>
-                </WalletModalProvider>
-            </WalletProvider>
-        </ConnectionProvider>
+        <Router>
+            <ConnectionProvider endpoint={endpoint}>
+                <WalletProvider wallets={wallets} autoConnect={false}>
+                    <WalletModalProvider>
+                        <AuthenticationProvider>
+                            <Naviagation />
+                            <Routes>
+                                <Route path="/post" element={<CreatePost />} />
+                            </Routes>
+                        </AuthenticationProvider>
+                    </WalletModalProvider>
+                </WalletProvider>
+            </ConnectionProvider>
+        </Router>
     );
 };
 

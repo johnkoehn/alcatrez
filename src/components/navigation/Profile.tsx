@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavDropdown } from 'react-bootstrap';
-import { useAuthentication } from '../components/providers/Authentication';
+import { useAuthentication } from '../providers/Authentication';
 
 const cleanPublicKey = (publicKey: string) => {
     return `${publicKey.slice(0, 5)}...`;
