@@ -19,6 +19,7 @@ import './App.css';
 import Naviagation from './components/navigation/Navigation';
 import { AuthenticationProvider } from './components/providers/Authentication';
 import CreatePost from './pages/CreatePost';
+import List, { ListType } from './pages/List';
 
 require('@solana/wallet-adapter-react-ui/styles.css');
 
@@ -54,6 +55,8 @@ const App = () => {
                             <Naviagation />
                             <Routes>
                                 <Route path="/post" element={<CreatePost />} />
+                                <Route path="/queue" element={<List listType={ListType.Queue} key="queue" />} />
+                                <Route path="/doubly-linked-list" element={<List listType={ListType.DoublyLinkedList} key="doubly-linked-list" />} />
                             </Routes>
                         </AuthenticationProvider>
                     </WalletModalProvider>
