@@ -5,12 +5,20 @@ import { createDequeue, Dequeue } from '../util/dataTypes/dequeue';
 import Error from '../components/util/Error';
 import LinkedList from '../components/list/LinkedList';
 
+export const enum ListType {
+    Queue = 'queue',
+    DoublyLinkedList = 'doubly linked list'
+}
+interface ListProps {
+    listType: ListType
+}
+
 const RADIUS = 30;
 const NODE_SPACING = 100;
 const START_X = 34;
 const START_Y = 50;
 
-const Queue = () => {
+const List = ({ listType }: ListProps) => {
     const [queue] = useState<Dequeue>(createDequeue());
     const [size] = useState({
         width: 1000,
@@ -22,7 +30,7 @@ const Queue = () => {
     const [lastAddedValue, setLastAddedValue] = useState<string | null>(null);
     const stageRef = useRef(null);
 
-    const addToQueue = () => {
+    const addToList = () => {
         if (value === '') {
             setErrorMessage('Must add a value');
             return;
@@ -35,28 +43,39 @@ const Queue = () => {
     };
 
     const updateValue = (event: React.ChangeEvent<HTMLInputElement>) => {
-        // if (event.target.value !== '') {
-        //     setErrorMessage(null);
-        // }
-
         setValue(event.target.value);
     };
 
     const onAddToQueueKeyPress = (event: React.KeyboardEvent) => {
         if (event.key === 'Enter') {
-            addToQueue();
+            addToList();
         }
     };
 
-    const onPop = () => {
+    const onPop = (left: boolean) => {
         if (queue.length() === 0) {
-            setErrorMessage('Cannot pop! Nothing is in the queue');
+            setErrorMessage(`Cannot pop! Nothing is in the ${listType}`);
             return;
         }
 
         setErrorMessage('');
-        const poppedValue = queue.popLeft() as string;
+        const poppedValue = left ? queue.popLeft() as string : queue.popRight() as string;
         setLastPoppedValued(poppedValue);
+    };
+
+    const buildPopTypes = () => {
+        if (listType === ListType.Queue) {
+            return (
+                <Button variant="outline-secondary" style={{ height: '100%' }} onClick={() => onPop(true)}>Pop</Button>
+            );
+        }
+
+        return (
+            <>
+                <Button variant="outline-secondary" style={{ height: '100%' }} onClick={() => onPop(true)}>Pop Left</Button>
+                <Button variant="outline-secondary" style={{ height: '100%' }} onClick={() => onPop(false)}>Pop Right</Button>
+            </>
+        );
     };
 
     return (
@@ -69,10 +88,10 @@ const Queue = () => {
             <Row style={{ marginTop: 5 }}>
                 <InputGroup className="md-3" as={Col}>
                     <FormControl type="number" placeholder="Add to Queue" value={value} onKeyPress={onAddToQueueKeyPress} onChange={updateValue} />
-                    <Button variant="outline-secondary" onClick={addToQueue}>Add</Button>
+                    <Button variant="outline-secondary" onClick={addToList}>Add</Button>
                 </InputGroup>
                 <Col md="auto">
-                    <Button variant="outline-secondary" style={{ height: '100%' }} onClick={onPop}>Pop</Button>
+                    {buildPopTypes()}
                 </Col>
                 <Col md="6">
                     <span>Last popped value: {lastPoppedValue}</span>
@@ -102,4 +121,5 @@ const Queue = () => {
     );
 };
 
-export default Queue;
+// export const  ListType };
+export default List;
