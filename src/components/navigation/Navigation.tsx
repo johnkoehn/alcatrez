@@ -35,6 +35,7 @@ const Navigation = () => {
                     <NavDropdown title="Com Sci" id="ComSci">
                         <NavDropdown.Item onClick={() => navigate('/queue')}>Queue</NavDropdown.Item>
                         <NavDropdown.Item onClick={() => navigate('/doubly-linked-list')}>Doubly Linked List</NavDropdown.Item>
+                        <NavDropdown.Item onClick={() => navigate('/graph')}>Graph</NavDropdown.Item>
                     </NavDropdown>
                 </Nav.Item>
             </Nav>
